@@ -1,4 +1,4 @@
-# Photopobre
+# Photopoor
 O projeto aceita uma imagem no formato PPM como entrada e opera sobre ela.
 As operações realizadas são:
 - Escala de cinza
