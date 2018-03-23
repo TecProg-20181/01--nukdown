@@ -7,22 +7,15 @@ typedef struct _pixel {
 } Pixel;
 
 typedef struct _image {
-    // [width][height][rgb]
-    // 0 -> r
-    // 1 -> g
-    // 2 -> b
     unsigned short int pixel[512][512][3];
     unsigned int w;
     unsigned int h;
 } Image;
 
 
-int max(int a, int b) {
-    return a > b ? a : b;
-}
 
 int min(int a, int b) {
-    return a > b ? b : b;
+    return a > b ? b : a;
 }
 int pixel_igual(Pixel p1, Pixel p2) {
     if (p1.r == p2.r &&
@@ -49,14 +42,12 @@ Image escala_de_cinza(Image img) {
     return img;
 }
 
-void blur(Image img, int T) {
+Image blur(Image img, int T) {
     for (unsigned int i = 0; i < img.h; ++i) {
         for (unsigned int j = 0; j < img.w; ++j) {
              Pixel media = {0, 0, 0};
-    // REFATORADO        int menor_h = (h - 1 > i + T/2) ? i + T/2 : h - 1;
-    // REFATORADO        int min_w = (w - 1 > j + T/2) ? j + T/2 : w - 1;
-            for(int x = (0 > i - T/2 ? 0 : i - T/2); x <= min(i+T/2, img.h-1); ++x) {
-                for(int y = (0 > j - T/2 ? 0 : j - T/2); y <= max(img.w-1, j+T/2); ++y) {
+            for(unsigned int x = (0 > i - T/2 ? 0 : i - T/2); x <= min(i+T/2, img.h-1); ++x) {
+                for(unsigned int y = (0 > j - T/2 ? 0 : j - T/2); y <= min(img.w-1, j+T/2); ++y) {
                     media.r += img.pixel[x][y][0];
                     media.g += img.pixel[x][y][1];
                     media.b += img.pixel[x][y][2];
@@ -73,6 +64,7 @@ void blur(Image img, int T) {
             img.pixel[i][j][2] = media.b;
         }
     }
+    return img;
 }
 
 Image filtrosepia(Image img){
@@ -85,7 +77,7 @@ Image filtrosepia(Image img){
           pixel[2] = img.pixel[x][j][2];
 
           int p =  pixel[0] * .393 + pixel[1] * .769 + pixel[2] * .189;
-          menor_r = (255 >  p) ? p : 255;
+          menor_r = min(255, p);
           img.pixel[x][j][0] = menor_r;
 
           p =  pixel[0] * .349 + pixel[1] * .686 + pixel[2] * .168;
@@ -106,7 +98,7 @@ Image rotacionar90direita(Image img) {
     rotacionada.h = img.w;
 
     for (unsigned int i = 0, y = 0; i < rotacionada.h; ++i, ++y) {
-        for (int j = rotacionada.w - 1, x = 0; j >= 0; --j, ++x) {
+        for (unsigned int j = rotacionada.w - 1, x = 0; j >= 0; --j, ++x) {
             rotacionada.pixel[i][j][0] = img.pixel[x][y][0];
             rotacionada.pixel[i][j][1] = img.pixel[x][y][1];
             rotacionada.pixel[i][j][2] = img.pixel[x][y][2];
@@ -185,7 +177,7 @@ int main() {
             case 3: { // Blur
                 int tamanho = 0;
                 scanf("%d", &tamanho);
-                blur(img, tamanho);
+                img = blur(img, tamanho);
                 break;
             }
             case 4: { // Rotacao
